@@ -1,0 +1,156 @@
+{
+  "nodes": [
+    {
+      "id": "FilmLogActivity",
+      "name": "FilmLogActivity",
+      "main": false
+    },
+    {
+      "id": "FilmReviewActivity",
+      "name": "FilmReviewActivity",
+      "main": false
+    },
+    {
+      "id": "FilmSearchActivity",
+      "name": "FilmSearchActivity",
+      "main": false
+    },
+    {
+      "id": "FriendDetailActivity",
+      "name": "FriendDetailActivity",
+      "main": false
+    },
+    {
+      "id": "FriendsActivity",
+      "name": "FriendsActivity",
+      "main": false
+    },
+    {
+      "id": "HelpActivity",
+      "name": "HelpActivity",
+      "main": false
+    },
+    {
+      "id": "HomepageActivity",
+      "name": "HomepageActivity",
+      "main": false
+    },
+    {
+      "id": "LoginActivity",
+      "name": "LoginActivity",
+      "main": true
+    },
+    {
+      "id": "MovieInfoActivity",
+      "name": "MovieInfoActivity",
+      "main": false
+    },
+    {
+      "id": "RegisterActivity",
+      "name": "RegisterActivity",
+      "main": false
+    },
+    {
+      "id": "ViewingHistoryActivity",
+      "name": "ViewingHistoryActivity",
+      "main": false
+    },
+    {
+      "id": "WatchlistActivity",
+      "name": "WatchlistActivity",
+      "main": false
+    }
+  ],
+  "links": [
+    {
+      "source": "FilmLogActivity",
+      "target": "HomepageActivity",
+      "amount": 22
+    },
+    {
+      "source": "FilmReviewActivity",
+      "target": "HomepageActivity",
+      "amount": 14
+    },
+    {
+      "source": "FilmSearchActivity",
+      "target": "MovieInfoActivity",
+      "amount": 34
+    },
+    {
+      "source": "FriendDetailActivity",
+      "target": "FilmReviewActivity",
+      "amount": 12
+    },
+    {
+      "source": "FriendsActivity",
+      "target": "FriendDetailActivity",
+      "amount": 67
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "ViewingHistoryActivity",
+      "amount": 4
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "WatchlistActivity",
+      "amount": 15
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "FilmSearchActivity",
+      "amount": 77
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "FriendsActivity",
+      "amount": 31
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "HelpActivity",
+      "amount": 22
+    },
+    {
+      "source": "HomepageActivity",
+      "target": "LoginActivity",
+      "amount": 8
+    },
+    {
+      "source": "LoginActivity",
+      "target": "HomepageActivity",
+      "amount": 12
+    },
+    {
+      "source": "LoginActivity",
+      "target": "RegisterActivity",
+      "amount": 40
+    },
+    {
+      "source": "MovieInfoActivity",
+      "target": "HomepageActivity",
+      "amount": 19
+    },
+    {
+      "source": "MovieInfoActivity",
+      "target": "FilmLogActivity",
+      "amount": 21
+    },
+    {
+      "source": "RegisterActivity",
+      "target": "LoginActivity",
+      "amount": 5
+    },
+    {
+      "source": "ViewingHistoryActivity",
+      "target": "FilmReviewActivity",
+      "amount": 48
+    },
+    {
+      "source": "WatchlistActivity",
+      "target": "MovieInfoActivity",
+      "amount": 30
+    }
+  ]
+}

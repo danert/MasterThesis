@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<style>
+
+  div.tooltip {	
+    position: absolute;			
+    text-align: center;			
+    width: auto;					
+    height: auto;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: rgb(210, 227, 248);	
+    border: solid;		
+    border-radius: 5px;
+    border-width: 1px;
+    padding: 10px;		
+    pointer-events: none;			
+  }
+
+  div.labels {
+    size: 40px;
+  }
+
+</style>
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<script>
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 10, right: 30, bottom: 30, left: 40},
+      width = 1300 - margin.left - margin.right,
+      height = 800 - margin.top - margin.bottom;
+
+    // append the svg object to the body of the page
+    var svg = d3.select("#my_dataviz")
+      .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+        .attr("transform",
+              "translate(" + margin.left + "," + margin.top + ")");
+
+    // source: https://www.d3-graph-gallery.com/graph/scatter_tooltip.html
+    var tooltip = d3.select("#my_dataviz")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+
+
+    d3.json("data/data.json", function( data) {
+
+      var link = svg
+        .append("svg:g").selectAll("path")
+        .data(data.links)
+        .enter()
+        .append("svg:path")
+          .attr('stroke', function (d) {
+            if (d.amount == 0) {return 'red'}
+            else {return '#aaa'}
+          })
+          .attr("stroke-width", function (d) { return 1 + d.amount / 2;})
+          .on("mouseover", function(d) {
+            tooltip
+              .style("opacity", 1)
+          } )
+          .on("mousemove", function(d) {
+            tooltip
+              .html(JSON.stringify(d.source.name).replace(/"/g, "") + " to " + JSON.stringify(d.target.name).replace(/"/g, "") + ": " + d.amount + " times")
+              .style("left", (d3.mouse(this)[0]+70) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+              .style("top", (d3.mouse(this)[1]) + "px")
+          } )
+          .on("mouseleave", function(d) {
+            tooltip
+              .style("opacity", 0)
+          } )
+          .attr("class", "link")
+          .attr("marker-end", "url(#triangle)")
+          .style("fill", "none");
+
+        // arrow
+        svg.append("svg:defs").append("svg:marker")
+          .attr("id", "triangle")
+          .attr("refX", 36)
+          .attr("refY", 3)
+          .attr("markerWidth", 30)
+          .attr("markerHeight", 30)
+          .attr("orient", "auto")
+          .attr("markerUnits", "userSpaceOnUse")
+          .append("path")
+          .attr("d", "M 0 0 12 6 0 12 3 6")
+          .style("fill", "black");
+
+      var node = svg.selectAll("node")
+        .data(data.nodes)
+        .enter().append("g")
+        .attr("class", "node")
+        .call(d3.drag()
+                .on("start", dragstarted)
+                .on("drag", dragged)
+                .on("end", dragended));
+    
+      var circle = node.append("circle")
+          .attr("r", 20)
+          .style("fill", function(d) {
+            if (d.main == true) {return "#fc5858"}
+            else 	{ return "#66a1ff" }
+          ;});
+
+      node.append("title").text(function(d) { return d.name });
+
+      var labels = node.append("text")
+        .text(function (d) { return d.name; })
+        .style("font", "14px sans-serif")
+        .attr("text-anchor", "middle")
+        .attr("dy", 4);
+
+      // legend
+      svg.append("circle").attr("cx",50).attr("cy",25).attr("r", 10).style("fill", "#fc5858")
+      svg.append("circle").attr("cx",50).attr("cy",55).attr("r", 10).style("fill", "#66a1ff")
+      svg.append("line").attr("x1",37).attr("y1",85).attr("x2", 63).attr("y2", 85).attr("stroke-width", 1).attr("stroke", "#aaa")
+      svg.append("line").attr("x1",37).attr("y1",115).attr("x2", 63).attr("y2", 115).attr("stroke-width", 1).attr("stroke", "red")
+      svg.append("text").attr("x", 70).attr("y", 30).text("Starting activity").style("font-size", "15px").attr("alignment-baseline","middle").style("font", "15px sans-serif")
+      svg.append("text").attr("x", 70).attr("y", 60).text("Other activities").style("font-size", "15px").attr("alignment-baseline","middle").style("font", "15px sans-serif")
+      svg.append("text").attr("x", 70).attr("y", 90).text("Taken path").style("font-size", "15px").attr("alignment-baseline","middle").style("font", "15px sans-serif")
+      svg.append("text").attr("x", 70).attr("y", 120).text("Path not taken").style("font-size", "15px").attr("alignment-baseline","middle").style("font", "15px sans-serif")
+
+      // help button
+      svg.append("circle").attr("cx",50).attr("cy",200).attr("r", 17).style("fill", "white").style("stroke", "black").style("stroke-width", 2).style("fill", "#cccccc")
+      .on("mouseover", function() {
+            return tooltip
+              .style("opacity", 1)
+      })
+          .on("mousemove", function() {
+            return tooltip
+              .html('This visualisation displays the structure of a mobile Android application,' + "<br/>" +
+              'each node representing a distinct activity. The width of the connections' + "<br/>" +
+              'between nodes is relative to the amount of times that specific \'path\' has' + "<br/>" +
+              'been taken by users. Red connections indicate that no users have taken this' + "<br/>" +
+              'path at all, suggesting potential problems. Connections can be hovered over' + "<br/>" +
+              'in order to receive more detailed information.')
+              .style("left", (d3.mouse(this)[0]+70) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+              .style("top", (d3.mouse(this)[1]) + "px");
+          })
+          .on("mouseleave", function() { 
+            return tooltip
+              .style("opacity", 0)
+          })
+      svg.append("text").attr("x", 42).attr("y", 209).text("?").style("font-size", "15px").attr("alignment-baseline","middle").style("font", "28px sans-serif")
+    
+      // source: https://www.d3-graph-gallery.com/graph/network_basic.html
+      // Let's list the force we wanna apply on the network
+      var simulation = d3.forceSimulation(data.nodes)                 // Force algorithm is applied to data.nodes
+          .force("link", d3.forceLink()                               // This force provides links between nodes
+                .id(function(d) { return d.id; })                     // This provide  the id of a node
+                .links(data.links)                                    // and this the list of links
+          )
+          .force("charge", d3.forceManyBody().strength(-3000))         // This adds repulsion between nodes. Play with the -400 for the repulsion strength
+          .force("center", d3.forceCenter(width / 2, height / 2))     // This force attracts nodes to the center of the svg area
+          .on("end", ticked);
+    
+      // This function is run at each iteration of the force algorithm, updating the nodes position.
+      function ticked() {
+        link
+            .attr("d", function(d) {
+        var dx = d.target.x - d.source.x,
+            dy = d.target.y - d.source.y,
+            dr = Math.sqrt(dx * dx + dy * dy);
+        return "M" + 
+            d.source.x + "," + 
+            d.source.y + "A" + 
+            dr + "," + dr + " 0 0,1 " + 
+            d.target.x + "," + 
+            d.target.y;
+    });
+    
+        node
+             .attr("cx", function (d) { return d.x; })
+             .attr("cy", function(d) { return d.y; });
+
+        circle
+            .attr("cx", function (d) { return d.x; })
+            .attr("cy", function(d) { return d.y; });
+
+        labels
+            .attr("transform", function(d) {
+            return "translate(" + d.x + "," + d.y + ")";
+        });
+      }
+
+      simulation
+            .nodes(data.nodes)
+            .on("tick", ticked);
+    
+      simulation.force("link")
+          .links(data.links);
+
+      function dragstarted(d) {
+          if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+      }
+      
+      function dragged(d) {
+          d.fx = d3.event.x;
+          d.fy = d3.event.y;
+      }
+      
+      function dragended(d) {
+          if (!d3.event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+      } 
+
+    });
+    
+    
+    </script>
